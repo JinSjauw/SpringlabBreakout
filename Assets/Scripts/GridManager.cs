@@ -1,4 +1,7 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class GridManager : MonoBehaviour
 {
@@ -8,7 +11,8 @@ public class GridManager : MonoBehaviour
     
     [SerializeField] private GameObject brickPrefab;
 
-    private GridCell[,] currentGrid; 
+    private GridCell[,] currentGrid;
+    private Dictionary<Vector2Int, Brick> brickList;
     
     private void Awake()
     {
@@ -17,43 +21,170 @@ public class GridManager : MonoBehaviour
 
     private void Start()
     {
-        PopulateGrid();
+        InitializeBricks();
     }
 
+    private void SpawnBrick()
+    {
+        //Handle the brick spawning here
+    }
+
+    private IEnumerable<Brick> GetNeighbours(Brick source, int range = 1)
+    {
+        Vector2Int gridPosition = source.GridPosition;
+        //IEnumerable<IBrick> neighbourList = Enumerable.Empty<IBrick>();
+        //Get NWSE neighbours
+        
+        //North
+        for (int i = 0; i < range; i++)
+        {
+            Vector2Int neighbourPosition = gridPosition + Vector2Int.up * (i + 1);
+
+            if (neighbourPosition.y >= 0 && brickList.ContainsKey(neighbourPosition))
+            {
+                yield return brickList[neighbourPosition];
+            }
+        }
+        
+        //West
+        for (int i = 0; i < range; i++)
+        {
+            Vector2Int neighbourPosition = gridPosition + Vector2Int.left * (i + 1);
+
+            if (neighbourPosition.x >= 0 && brickList.ContainsKey(neighbourPosition))
+            {
+                yield return brickList[neighbourPosition];
+            }
+        }
+        
+        //South
+        for (int i = 0; i < range; i++)
+        {
+            if (gridSize.y < range)
+            {
+                break;
+            }
+            
+            Vector2Int neighbourPosition = gridPosition + Vector2Int.down * (i + 1);
+
+            if (neighbourPosition.y <= gridSize.y && brickList.ContainsKey(neighbourPosition))
+            {
+                yield return brickList[neighbourPosition];
+            }
+        }
+        
+        //East
+        for (int i = 0; i < range; i++)
+        {
+            if (gridSize.x < range)
+            {
+                break;
+            }
+            
+            Vector2Int neighbourPosition = gridPosition + Vector2Int.right * (i + 1);
+
+            if (neighbourPosition.x <= gridSize.x && brickList.ContainsKey(neighbourPosition))
+            {
+                yield return brickList[neighbourPosition];
+            }
+        }
+        
+        
+    }
+    
     public void GenerateGrid()
     {
         currentGrid = new GridCell[gridSize.x, gridSize.y];
+        brickList = new Dictionary<Vector2Int, Brick>();
         
         for (int x = 0; x < gridSize.x; x++)
         {
             for (int y = 0; y < gridSize.y; y++)
             {
-                currentGrid[x, y] = new GridCell(new Vector2Int(x, y), transform.position + new Vector3(((gridSize.x - 1) * .5f - x) * (offset.x + brickSize.x),
-                        -y * (offset.y + brickSize.y),
-                        0));
+                GridCell newCell = new GridCell(new Vector2Int(x, y), transform.position + new Vector3(((gridSize.x - 1) * .5f - x) * (offset.x + brickSize.x),
+                                -y * (offset.y + brickSize.y),
+                                0));
+
+                currentGrid[x, y] = newCell;
+                
+                GameObject brickObject = Instantiate(brickPrefab, transform);
+                Brick spawnedBrick = brickObject.GetComponent<Brick>();
+            
+                if (spawnedBrick == null)
+                {
+                    Destroy(brickObject);
+                    Debug.Log("Brick Component not found!");
+                    return;
+                }
+
+                Transform brickTransform = spawnedBrick.transform;
+                brickTransform.name = "Brick: " + newCell.gridPosition;
+                brickTransform.position = newCell.worldPosition;
+                brickTransform.localScale = brickSize;
+            
+                brickList.Add(newCell.gridPosition, spawnedBrick);
             }
         }
     }
 
-    public void PopulateGrid()
+    public void InitializeBricks()
     {
-        foreach (GridCell position in currentGrid)
+        foreach (KeyValuePair<Vector2Int, Brick> brickData in brickList)
+        {
+            Vector2Int cellPosition = brickData.Key;
+            Brick spawnedBrick = brickData.Value;
+            
+            Array brickTypeArray = Enum.GetValues(typeof(BrickTypes));
+
+            BrickTypes randomBrickType = (BrickTypes)brickTypeArray.GetValue(Random.Range(0, brickTypeArray.Length - 1));
+            
+            //For each brick that is explosive get their neighbours
+            
+            if (randomBrickType != BrickTypes.NORMAL)
+            {
+                spawnedBrick.Initialize(cellPosition, randomBrickType, GetNeighbours(spawnedBrick, randomBrickType == BrickTypes.SUPEREXPLOSIVE ? 10 : 2));
+            }
+            else
+            {
+                spawnedBrick.Initialize(cellPosition, randomBrickType);
+            }
+        }
+        
+        
+        /*foreach (GridCell cell in currentGrid)
         {
             GameObject brickObject = Instantiate(brickPrefab, transform);
-            Brick brick = brickObject.GetComponent<Brick>();
-        
-            if (brick == null)
+            Brick spawnedBrick = brickObject.GetComponent<Brick>();
+
+            Array brickTypeArray = Enum.GetValues(typeof(BrickTypes));
+
+            BrickTypes randomBrickType = (BrickTypes)brickTypeArray.GetValue(Random.Range(0, brickTypeArray.Length - 1));
+            
+            //For each brick that is explosive get their neighbours
+            
+            if (randomBrickType != BrickTypes.NORMAL)
+            {
+                spawnedBrick.Initialize(cell.gridPosition, randomBrickType, GetNeighbours(spawnedBrick, randomBrickType == BrickTypes.SUPEREXPLOSIVE ? 10 : 2));
+            }
+            else
+            {
+                spawnedBrick.Initialize(cell.gridPosition, randomBrickType);
+            }
+            
+            if (spawnedBrick == null)
             {
                 Destroy(brickObject);
                 Debug.Log("Brick Component not found!");
                 return;
             }
 
-            Transform brickTransform = brick.transform;
-            brickTransform.position = position.worldPosition;
+            Transform brickTransform = spawnedBrick.transform;
+            brickTransform.name = "Brick: " + cell.gridPosition;
+            brickTransform.position = cell.worldPosition;
             brickTransform.localScale = brickSize;
             
-        }
+            brickList.Add(cell.gridPosition, spawnedBrick);
+        }*/
     }
     
     
