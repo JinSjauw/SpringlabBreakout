@@ -172,5 +172,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   willHitNeighbours: 0
-  maxLives: 2
+  maxLives: 5
   brickType: 0
+  neighbours: []

@@ -12,7 +12,7 @@ public class Brick : MonoBehaviour, IBrick
     private SpriteRenderer renderer;
     
     private Vector2Int gridPosition;
-    private int currentLives;
+    [SerializeField] private int currentLives;
     
     [SerializeField] private List<Brick> neighbours;
     
@@ -20,42 +20,35 @@ public class Brick : MonoBehaviour, IBrick
     public bool WillHitNeighboursOnDeath { get => willHitNeighbours; }
     public int Lives { get => currentLives; }
     public Vector2Int GridPosition { get => gridPosition; }
-
-    public event EventHandler<Brick> OnDestruction; 
     
     private void Awake()
     {
         renderer = GetComponent<SpriteRenderer>();
         //currentLives = maxLives;
     }
-
-    private void OnNeighbourDestoyed(object sender, Brick e)
-    {
-        if (neighbours.Contains(e))
-        {
-            neighbours.Remove(e);
-        }
-    }
     
     public void Initialize(Vector2Int positionOnGrid, BrickTypes type, IEnumerable<Brick> neighboursCollection = null)
     {
         gridPosition = positionOnGrid;
         brickType = type;
-        currentLives = brickType == BrickTypes.NORMAL ? maxLives : 0;
-
 
         if (neighboursCollection != null)
         {
             neighbours = neighboursCollection.ToList();
-            
-            foreach (Brick neighbour in neighbours)
-            {
-                neighbour.OnDestruction += OnNeighbourDestoyed;
-            }
         }
         
-        //Observer pattern.
-        //When Brick dies remove it from neighbours list.
+        switch (brickType)
+        {
+            case BrickTypes.NORMAL:
+                currentLives = maxLives;
+                break;
+            case BrickTypes.EXPLOSIVE:
+                currentLives = maxLives / 2;
+                break;
+            case BrickTypes.SUPEREXPLOSIVE:
+                currentLives = 0;
+                break;
+        }
         
         switch (brickType)
         {
@@ -79,16 +72,25 @@ public class Brick : MonoBehaviour, IBrick
 
     public void OnResolveHit()
     {
-        Debug.Log(transform.position);
+        currentLives--;
+        
+        if (brickType == BrickTypes.NORMAL && gameObject.activeSelf)
+        {
+            Debug.Log("Hit! " + currentLives + " ID: " + gridPosition);
+        }
+        
         if (currentLives > 0)
         {
-            currentLives--;
             GetComponent<SpriteRenderer>().color = Color.Lerp(Color.red, Color.white, currentLives / (float)maxLives);
         }
         else if(gameObject.activeSelf)
         {
-            //OnDestruction?.Invoke(this, this);
             gameObject.SetActive(false);
+
+            if (willHitNeighbours)
+            {
+                foreach (IBrick brick in BrickResolver.ResolveBricksToDestroy(this)) { }
+            }
         }
     }
 }

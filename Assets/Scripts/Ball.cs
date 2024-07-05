@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -53,12 +54,7 @@ public class Ball : MonoBehaviour
 
 		if (collision.gameObject.TryGetComponent(out IBrick hitBrick))
 		{
-			foreach (IBrick brick in BrickResolver.ResolveBricksToDestroy(hitBrick))
-			{
-				
-			}
+			foreach (IBrick brick in BrickResolver.ResolveBricksToDestroy(hitBrick)){}
 		}
-		
-		
 	}
 }
