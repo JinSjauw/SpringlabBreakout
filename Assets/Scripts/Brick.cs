@@ -10,11 +10,12 @@ public class Brick : MonoBehaviour, IBrick
     [SerializeField] private BrickTypes brickType;
 
     private SpriteRenderer renderer;
+    private Color startColor;
     
     private Vector2Int gridPosition;
-    [SerializeField] private int currentLives;
+    private int currentLives;
     
-    [SerializeField] private List<Brick> neighbours;
+    private List<Brick> neighbours;
     
     public IEnumerable<IBrick> Neighbours { get => neighbours; }
     public bool WillHitNeighboursOnDeath { get => willHitNeighbours; }
@@ -24,7 +25,6 @@ public class Brick : MonoBehaviour, IBrick
     private void Awake()
     {
         renderer = GetComponent<SpriteRenderer>();
-        //currentLives = maxLives;
     }
     
     public void Initialize(Vector2Int positionOnGrid, BrickTypes type, IEnumerable<Brick> neighboursCollection = null)
@@ -67,21 +67,23 @@ public class Brick : MonoBehaviour, IBrick
                 renderer.color = Color.green;
                 break;
         }
-        
+
+        startColor = renderer.color;
+
     }
 
     public void OnResolveHit()
     {
         currentLives--;
         
-        if (brickType == BrickTypes.NORMAL && gameObject.activeSelf)
+        /*if (brickType == BrickTypes.NORMAL && gameObject.activeSelf)
         {
             Debug.Log("Hit! " + currentLives + " ID: " + gridPosition);
-        }
+        }*/
         
         if (currentLives > 0)
         {
-            GetComponent<SpriteRenderer>().color = Color.Lerp(Color.red, Color.white, currentLives / (float)maxLives);
+            GetComponent<SpriteRenderer>().color = Color.Lerp(Color.red, startColor, currentLives / (float)maxLives);
         }
         else if(gameObject.activeSelf)
         {

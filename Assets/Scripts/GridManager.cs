@@ -29,72 +29,22 @@ public class GridManager : MonoBehaviour
         //Handle the brick spawning here
     }
 
-    private IEnumerable<Brick> GetNeighbours(Brick source, int range = 1)
+    private IEnumerable<Brick> GetNeighbours(Brick source, int range = 1, bool diagonal = false)
     {
-
-        foreach (Brick neighbour in GetStraightNeighbours(source, range))
+        if (diagonal)
         {
-            yield return neighbour;
-        }
-        
-        
-        
-        /*Vector2Int gridPosition = source.GridPosition;
-        //Get NWSE neighbours
-
-        //North
-        for (int i = 0; i < range; i++)
-        {
-            Vector2Int neighbourPosition = gridPosition + Vector2Int.up * (i + 1);
-
-            if (neighbourPosition.y >= 0 && brickList.ContainsKey(neighbourPosition))
+            foreach (Brick neighbour in GetDiagonalNeighbours(source, range))
             {
-                yield return brickList[neighbourPosition];
+                yield return neighbour;
             }
         }
-
-        //West
-        for (int i = 0; i < range; i++)
+        else
         {
-            Vector2Int neighbourPosition = gridPosition + Vector2Int.left * (i + 1);
-
-            if (neighbourPosition.x >= 0 && brickList.ContainsKey(neighbourPosition))
+            foreach (Brick neighbour in GetStraightNeighbours(source, range))
             {
-                yield return brickList[neighbourPosition];
+                yield return neighbour;
             }
         }
-
-        //South
-        for (int i = 0; i < range; i++)
-        {
-            if (gridSize.y < range)
-            {
-                break;
-            }
-
-            Vector2Int neighbourPosition = gridPosition + Vector2Int.down * (i + 1);
-
-            if (neighbourPosition.y <= gridSize.y && brickList.ContainsKey(neighbourPosition))
-            {
-                yield return brickList[neighbourPosition];
-            }
-        }
-
-        //East
-        for (int i = 0; i < range; i++)
-        {
-            if (gridSize.x < range)
-            {
-                break;
-            }
-
-            Vector2Int neighbourPosition = gridPosition + Vector2Int.right * (i + 1);
-
-            if (neighbourPosition.x <= gridSize.x && brickList.ContainsKey(neighbourPosition))
-            {
-                yield return brickList[neighbourPosition];
-            }
-        }*/
     }
 
     private IEnumerable<Brick> GetStraightNeighbours(Brick source, int range = 1)
@@ -105,7 +55,7 @@ public class GridManager : MonoBehaviour
         //North
         for (int i = 0; i < range; i++)
         {
-            Vector2Int neighbourPosition = gridPosition + Vector2Int.up * (i + 1);
+            Vector2Int neighbourPosition = gridPosition + Vector2Int.down * (i + 1);
 
             if (neighbourPosition.y >= 0 && brickList.ContainsKey(neighbourPosition))
             {
@@ -132,7 +82,7 @@ public class GridManager : MonoBehaviour
                 break;
             }
             
-            Vector2Int neighbourPosition = gridPosition + Vector2Int.down * (i + 1);
+            Vector2Int neighbourPosition = gridPosition + Vector2Int.up * (i + 1);
 
             if (neighbourPosition.y <= gridSize.y && brickList.ContainsKey(neighbourPosition))
             {
@@ -165,9 +115,9 @@ public class GridManager : MonoBehaviour
         //North West
         for (int i = 0; i < range; i++)
         {
-            Vector2Int neighbourPosition = gridPosition + Vector2Int.up * (i + 1);
+            Vector2Int neighbourPosition = gridPosition + (Vector2Int.right + Vector2Int.down) * (i + 1);
 
-            if (neighbourPosition.y >= 0 && brickList.ContainsKey(neighbourPosition))
+            if (neighbourPosition.y >= 0 && neighbourPosition.x >= 0 && brickList.ContainsKey(neighbourPosition))
             {
                 yield return brickList[neighbourPosition];
             }
@@ -176,17 +126,35 @@ public class GridManager : MonoBehaviour
         //North East
         for (int i = 0; i < range; i++)
         {
-            Vector2Int neighbourPosition = gridPosition + Vector2Int.left * (i + 1);
+            Vector2Int neighbourPosition = gridPosition + (Vector2Int.left + Vector2Int.down) * (i + 1);
 
-            if (neighbourPosition.x >= 0 && brickList.ContainsKey(neighbourPosition))
+            if (neighbourPosition.y <= 0 && neighbourPosition.x <= gridSize.x && brickList.ContainsKey(neighbourPosition))
             {
                 yield return brickList[neighbourPosition];
             }
         }
         
         //South West
-       
+        for (int i = 0; i < range; i++)
+        {
+            Vector2Int neighbourPosition = gridPosition + (Vector2Int.right + Vector2Int.up) * (i + 1);
+
+            if (neighbourPosition.y <= gridSize.y && neighbourPosition.x >= 0 && brickList.ContainsKey(neighbourPosition))
+            {
+                yield return brickList[neighbourPosition];
+            }
+        }
+        
         //South East
+        for (int i = 0; i < range; i++)
+        {
+            Vector2Int neighbourPosition = gridPosition + (Vector2Int.left + Vector2Int.up) * (i + 1);
+
+            if (neighbourPosition.y <= gridSize.y && neighbourPosition.x <= gridSize.x && brickList.ContainsKey(neighbourPosition))
+            {
+                yield return brickList[neighbourPosition];
+            }
+        }
     }
     
     public void GenerateGrid()
@@ -198,8 +166,8 @@ public class GridManager : MonoBehaviour
         {
             for (int y = 0; y < gridSize.y; y++)
             {
-                GridCell newCell = new GridCell(new Vector2Int(x, y), transform.position + new Vector3(((gridSize.x - 1) * .5f - x) * (offset.x + brickSize.x),
-                                -y * (offset.y + brickSize.y),
+                GridCell newCell = new GridCell(new Vector2Int(x, y), transform.position - new Vector3(((gridSize.x - 1) * .5f - x) * (offset.x + brickSize.x),
+                                y * (offset.y + brickSize.y),
                                 0));
 
                 currentGrid[x, y] = newCell;
@@ -254,7 +222,7 @@ public class GridManager : MonoBehaviour
             
             if (randomBrickType != BrickTypes.NORMAL)
             {
-                spawnedBrick.Initialize(cellPosition, randomBrickType, GetNeighbours(spawnedBrick, randomBrickType == BrickTypes.SUPEREXPLOSIVE ? 2 : 1));
+                spawnedBrick.Initialize(cellPosition, randomBrickType, GetNeighbours(spawnedBrick, randomBrickType == BrickTypes.SUPEREXPLOSIVE ? 4 : 2, randomBrickType == BrickTypes.EXPLOSIVE));
             }
             else
             {
