@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -12,7 +13,7 @@ public class GridManager : MonoBehaviour
     [SerializeField] private GameObject brickPrefab;
 
     private GridCell[,] currentGrid;
-    private Dictionary<Vector2Int, Brick> brickList;
+    private Dictionary<Vector2Int, Brick> brickDictionary;
     
     private void Awake()
     {
@@ -28,6 +29,41 @@ public class GridManager : MonoBehaviour
     {
         //Handle the brick spawning here
     }
+
+    //Get a list of random instantiated bricks.
+    private List<Brick> GetRandomBricks( ref List<Brick> bricksList, float percentage)
+    {
+        List<Brick> result = new List<Brick>();
+        
+        int amountToGet = (int)(bricksList.Count * percentage);
+
+        if (amountToGet <= 0)
+        {
+            Debug.Log("Nothing Left In the List!");
+            return result;
+        }
+        
+        Debug.Log("Getting Random Bricks! " + " Amount to get: " + amountToGet + " Brick count: " + bricksList.Count + " Percentage: " + percentage);
+        
+        for (int i = 0; i < amountToGet; i++)
+        {
+            Brick selectedBrick = bricksList[Random.Range(0, bricksList.Count - 1)];
+            
+            result.Add(selectedBrick);
+            bricksList.Remove(selectedBrick);
+        }
+        
+        return result;
+    }
+
+    private void SetBrickTypes(List<Brick> bricksToSet, BrickTypes type)
+    {
+        foreach (Brick brick in bricksToSet)
+        {
+            brick.SetBrickType(type);
+        }
+    }
+    
 
     private IEnumerable<Brick> GetNeighbours(Brick source, int range = 1, bool diagonal = false)
     {
@@ -46,7 +82,6 @@ public class GridManager : MonoBehaviour
             }
         }
     }
-
     private IEnumerable<Brick> GetStraightNeighbours(Brick source, int range = 1)
     {
         Vector2Int gridPosition = source.GridPosition;
@@ -57,9 +92,9 @@ public class GridManager : MonoBehaviour
         {
             Vector2Int neighbourPosition = gridPosition + Vector2Int.down * (i + 1);
 
-            if (neighbourPosition.y >= 0 && brickList.ContainsKey(neighbourPosition))
+            if (neighbourPosition.y >= 0 && brickDictionary.ContainsKey(neighbourPosition))
             {
-                yield return brickList[neighbourPosition];
+                yield return brickDictionary[neighbourPosition];
             }
         }
         
@@ -68,9 +103,9 @@ public class GridManager : MonoBehaviour
         {
             Vector2Int neighbourPosition = gridPosition + Vector2Int.left * (i + 1);
 
-            if (neighbourPosition.x >= 0 && brickList.ContainsKey(neighbourPosition))
+            if (neighbourPosition.x >= 0 && brickDictionary.ContainsKey(neighbourPosition))
             {
-                yield return brickList[neighbourPosition];
+                yield return brickDictionary[neighbourPosition];
             }
         }
         
@@ -84,9 +119,9 @@ public class GridManager : MonoBehaviour
             
             Vector2Int neighbourPosition = gridPosition + Vector2Int.up * (i + 1);
 
-            if (neighbourPosition.y <= gridSize.y && brickList.ContainsKey(neighbourPosition))
+            if (neighbourPosition.y <= gridSize.y && brickDictionary.ContainsKey(neighbourPosition))
             {
-                yield return brickList[neighbourPosition];
+                yield return brickDictionary[neighbourPosition];
             }
         }
         
@@ -100,13 +135,12 @@ public class GridManager : MonoBehaviour
             
             Vector2Int neighbourPosition = gridPosition + Vector2Int.right * (i + 1);
 
-            if (neighbourPosition.x <= gridSize.x && brickList.ContainsKey(neighbourPosition))
+            if (neighbourPosition.x <= gridSize.x && brickDictionary.ContainsKey(neighbourPosition))
             {
-                yield return brickList[neighbourPosition];
+                yield return brickDictionary[neighbourPosition];
             }
         }
     }
-
     private IEnumerable<Brick> GetDiagonalNeighbours(Brick source, int range = 1)
     {
         Vector2Int gridPosition = source.GridPosition;
@@ -117,9 +151,9 @@ public class GridManager : MonoBehaviour
         {
             Vector2Int neighbourPosition = gridPosition + (Vector2Int.right + Vector2Int.down) * (i + 1);
 
-            if (neighbourPosition.y >= 0 && neighbourPosition.x >= 0 && brickList.ContainsKey(neighbourPosition))
+            if (neighbourPosition.y >= 0 && neighbourPosition.x >= 0 && brickDictionary.ContainsKey(neighbourPosition))
             {
-                yield return brickList[neighbourPosition];
+                yield return brickDictionary[neighbourPosition];
             }
         }
         
@@ -128,9 +162,9 @@ public class GridManager : MonoBehaviour
         {
             Vector2Int neighbourPosition = gridPosition + (Vector2Int.left + Vector2Int.down) * (i + 1);
 
-            if (neighbourPosition.y <= 0 && neighbourPosition.x <= gridSize.x && brickList.ContainsKey(neighbourPosition))
+            if (neighbourPosition.y <= 0 && neighbourPosition.x <= gridSize.x && brickDictionary.ContainsKey(neighbourPosition))
             {
-                yield return brickList[neighbourPosition];
+                yield return brickDictionary[neighbourPosition];
             }
         }
         
@@ -139,9 +173,9 @@ public class GridManager : MonoBehaviour
         {
             Vector2Int neighbourPosition = gridPosition + (Vector2Int.right + Vector2Int.up) * (i + 1);
 
-            if (neighbourPosition.y <= gridSize.y && neighbourPosition.x >= 0 && brickList.ContainsKey(neighbourPosition))
+            if (neighbourPosition.y <= gridSize.y && neighbourPosition.x >= 0 && brickDictionary.ContainsKey(neighbourPosition))
             {
-                yield return brickList[neighbourPosition];
+                yield return brickDictionary[neighbourPosition];
             }
         }
         
@@ -150,17 +184,19 @@ public class GridManager : MonoBehaviour
         {
             Vector2Int neighbourPosition = gridPosition + (Vector2Int.left + Vector2Int.up) * (i + 1);
 
-            if (neighbourPosition.y <= gridSize.y && neighbourPosition.x <= gridSize.x && brickList.ContainsKey(neighbourPosition))
+            if (neighbourPosition.y <= gridSize.y && neighbourPosition.x <= gridSize.x && brickDictionary.ContainsKey(neighbourPosition))
             {
-                yield return brickList[neighbourPosition];
+                yield return brickDictionary[neighbourPosition];
             }
         }
     }
     
     public void GenerateGrid()
     {
+        //Delete last objects before making new ones
+        
         currentGrid = new GridCell[gridSize.x, gridSize.y];
-        brickList = new Dictionary<Vector2Int, Brick>();
+        brickDictionary = new Dictionary<Vector2Int, Brick>();
         
         for (int x = 0; x < gridSize.x; x++)
         {
@@ -187,7 +223,7 @@ public class GridManager : MonoBehaviour
                 brickTransform.position = newCell.worldPosition;
                 brickTransform.localScale = brickSize;
             
-                brickList.Add(newCell.gridPosition, spawnedBrick);
+                brickDictionary.Add(newCell.gridPosition, spawnedBrick);
             }
         }
     }
@@ -196,37 +232,27 @@ public class GridManager : MonoBehaviour
     {
         int amountExplosive = 0;
         int amountMaxExplosive = 5;
+
+
+        List<Brick> normalBricksList = brickDictionary.Values.ToList();
         
-        foreach (KeyValuePair<Vector2Int, Brick> brickData in brickList)
+        //Designate random brick types
+        SetBrickTypes(GetRandomBricks(ref normalBricksList, .2f), BrickTypes.EXPLOSIVE);
+        SetBrickTypes(GetRandomBricks(ref normalBricksList, .1f), BrickTypes.SUPEREXPLOSIVE);
+        //SetBrickTypes(GetRandomBricks(ref normalBricksList, .4f), BrickTypes.POWERUP);
+        
+        foreach (KeyValuePair<Vector2Int, Brick> brickData in brickDictionary)
         {
             Vector2Int cellPosition = brickData.Key;
             Brick spawnedBrick = brickData.Value;
             
-            Array brickTypeArray = Enum.GetValues(typeof(BrickTypes));
-
-            //Need to rethink spawning in random types of bricks.
-            
-            BrickTypes randomBrickType = (BrickTypes)brickTypeArray.GetValue(Random.Range(0, brickTypeArray.Length - 1));
-
-            if (randomBrickType != BrickTypes.NORMAL)
+            if (spawnedBrick.BrickType != BrickTypes.NORMAL)
             {
-                amountExplosive++;
-            }
-
-            if (amountMaxExplosive <= amountExplosive)
-            {
-                randomBrickType = BrickTypes.NORMAL;
-            }
-            
-            //For each brick that is explosive get their neighbours
-            
-            if (randomBrickType != BrickTypes.NORMAL)
-            {
-                spawnedBrick.Initialize(cellPosition, randomBrickType, GetNeighbours(spawnedBrick, randomBrickType == BrickTypes.SUPEREXPLOSIVE ? 4 : 2, randomBrickType == BrickTypes.EXPLOSIVE));
+                spawnedBrick.Initialize(cellPosition, GetNeighbours(spawnedBrick, spawnedBrick.BrickType == BrickTypes.SUPEREXPLOSIVE ? 4 : 2, spawnedBrick.BrickType == BrickTypes.EXPLOSIVE));
             }
             else
             {
-                spawnedBrick.Initialize(cellPosition, randomBrickType);
+                spawnedBrick.Initialize(cellPosition);
             }
         }
     }

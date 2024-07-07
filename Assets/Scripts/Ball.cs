@@ -1,9 +1,8 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Simple class that controlls the ball
+/// Simple class that controls the ball
 /// </summary>
 public class Ball : MonoBehaviour
 {
@@ -51,10 +50,17 @@ public class Ball : MonoBehaviour
 
 			return;
 		}
-
-		if (collision.gameObject.TryGetComponent(out IBrick hitBrick))
+		
+		if (collision.gameObject.TryGetComponent(out IBrick source))
 		{
-			foreach (IBrick brick in BrickResolver.ResolveBricksToDestroy(hitBrick)){}
+			foreach (IBrick brick in BrickResolver.ResolveBricksToDestroy(source))
+			{
+				Brick brickToDestroy = (Brick)brick;
+				if (brickToDestroy.WillHitNeighboursOnDeath && !brickToDestroy.IsDestroyed)
+				{
+					foreach (IBrick brickNeighbours in BrickResolver.ResolveBricksToDestroy(brickToDestroy)) { }
+				}
+			}
 		}
 	}
 }

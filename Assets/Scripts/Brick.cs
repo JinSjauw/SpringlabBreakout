@@ -5,37 +5,49 @@ using UnityEngine;
 
 public class Brick : MonoBehaviour, IBrick
 {
-    [SerializeField] private bool willHitNeighbours;
     [SerializeField] private int maxLives;
     [SerializeField] private BrickTypes brickType;
-
+    
+    //IBrick fields
+    private List<Brick> neighbours;
+    private bool willHitNeighbours;
+    private int currentLives;
+    
+    private Vector2Int gridPosition;
+    private bool isDestroyed;
+    
     private SpriteRenderer renderer;
     private Color startColor;
     
-    private Vector2Int gridPosition;
-    private int currentLives;
-    
-    private List<Brick> neighbours;
-    
-    public IEnumerable<IBrick> Neighbours { get => neighbours; }
-    public bool WillHitNeighboursOnDeath { get => willHitNeighbours; }
-    public int Lives { get => currentLives; }
-    public Vector2Int GridPosition { get => gridPosition; }
+    public BrickTypes BrickType => brickType;
+    public IEnumerable<IBrick> Neighbours => neighbours;
+    public bool WillHitNeighboursOnDeath => willHitNeighbours;
+    public int Lives => currentLives;
+    public Vector2Int GridPosition => gridPosition;
+    public bool IsDestroyed => isDestroyed;
     
     private void Awake()
     {
         renderer = GetComponent<SpriteRenderer>();
+        brickType = BrickTypes.NORMAL;
     }
     
-    public void Initialize(Vector2Int positionOnGrid, BrickTypes type, IEnumerable<Brick> neighboursCollection = null)
+    public void Initialize(Vector2Int positionOnGrid, IEnumerable<Brick> neighboursCollection = null)
     {
         gridPosition = positionOnGrid;
-        brickType = type;
+        //brickType = type;
 
         if (neighboursCollection != null)
         {
             neighbours = neighboursCollection.ToList();
         }
+
+        startColor = renderer.color;
+    }
+
+    public void SetBrickType(BrickTypes type)
+    {
+        brickType = type;
         
         switch (brickType)
         {
@@ -67,9 +79,6 @@ public class Brick : MonoBehaviour, IBrick
                 renderer.color = Color.green;
                 break;
         }
-
-        startColor = renderer.color;
-
     }
 
     public void OnResolveHit()
@@ -89,10 +98,11 @@ public class Brick : MonoBehaviour, IBrick
         {
             gameObject.SetActive(false);
 
-            if (willHitNeighbours)
+            isDestroyed = true;
+            /*if (willHitNeighbours)
             {
                 foreach (IBrick brick in BrickResolver.ResolveBricksToDestroy(this)) { }
-            }
+            }*/
         }
     }
 }
