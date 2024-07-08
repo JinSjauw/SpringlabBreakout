@@ -25,11 +25,6 @@ public class GridManager : MonoBehaviour
         InitializeBricks();
     }
 
-    private void SpawnBrick()
-    {
-        //Handle the brick spawning here
-    }
-
     //Get a list of random instantiated bricks.
     private List<Brick> GetRandomBricks( ref List<Brick> bricksList, float percentage)
     {
@@ -194,7 +189,6 @@ public class GridManager : MonoBehaviour
     public void GenerateGrid()
     {
         //Delete last objects before making new ones
-        
         currentGrid = new GridCell[gridSize.x, gridSize.y];
         brickDictionary = new Dictionary<Vector2Int, Brick>();
         
