@@ -34,9 +34,6 @@ public class PaddleController : MonoBehaviour
 		Vector2 desiredVelocity = moveDirection * moveSpeed;
 		
 		Vector2 neededAcceleration = (desiredVelocity - paddleVelocity) / Time.fixedDeltaTime;
-		//neededAcceleration = Vector2.ClampMagnitude(neededAcceleration, maxAccel);
-		
-		Debug.Log("Need Acceleration" + neededAcceleration);
 		
 		paddleRigidBody.AddForce(neededAcceleration * paddleRigidBody.mass);
 	}

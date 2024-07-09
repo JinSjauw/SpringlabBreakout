@@ -85,11 +85,6 @@ public class Brick : MonoBehaviour, IBrick
     {
         currentLives--;
         
-        /*if (brickType == BrickTypes.NORMAL && gameObject.activeSelf)
-        {
-            Debug.Log("Hit! " + currentLives + " ID: " + gridPosition);
-        }*/
-        
         if (currentLives > 0)
         {
             GetComponent<SpriteRenderer>().color = Color.Lerp(Color.red, startColor, currentLives / (float)maxLives);
@@ -99,10 +94,6 @@ public class Brick : MonoBehaviour, IBrick
             gameObject.SetActive(false);
 
             isDestroyed = true;
-            /*if (willHitNeighbours)
-            {
-                foreach (IBrick brick in BrickResolver.ResolveBricksToDestroy(this)) { }
-            }*/
         }
     }
 }

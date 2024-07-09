@@ -12,17 +12,21 @@ public class GridManager : MonoBehaviour
     
     [SerializeField] private GameObject brickPrefab;
 
+    public static GridManager Instance;
+    
     private GridCell[,] currentGrid;
     private Dictionary<Vector2Int, Brick> brickDictionary;
-    
+
     private void Awake()
     {
-        GenerateGrid();
-    }
-
-    private void Start()
-    {
-        InitializeBricks();
+        if (Instance != null && Instance != this)
+        {
+            Destroy(this);
+        }
+        else
+        {
+            Instance = this;   
+        }
     }
 
     //Get a list of random instantiated bricks.
@@ -38,7 +42,7 @@ public class GridManager : MonoBehaviour
             return result;
         }
         
-        Debug.Log("Getting Random Bricks! " + " Amount to get: " + amountToGet + " Brick count: " + bricksList.Count + " Percentage: " + percentage);
+        //Debug.Log("Getting Random Bricks! " + " Amount to get: " + amountToGet + " Brick count: " + bricksList.Count + " Percentage: " + percentage);
         
         for (int i = 0; i < amountToGet; i++)
         {
@@ -50,7 +54,6 @@ public class GridManager : MonoBehaviour
         
         return result;
     }
-
     private void SetBrickTypes(List<Brick> bricksToSet, BrickTypes type)
     {
         foreach (Brick brick in bricksToSet)
@@ -58,8 +61,6 @@ public class GridManager : MonoBehaviour
             brick.SetBrickType(type);
         }
     }
-    
-
     private IEnumerable<Brick> GetNeighbours(Brick source, int range = 1, bool diagonal = false)
     {
         if (diagonal)
@@ -186,7 +187,7 @@ public class GridManager : MonoBehaviour
         }
     }
     
-    public void GenerateGrid()
+    private void GenerateGrid()
     {
         //Delete last objects before making new ones
         currentGrid = new GridCell[gridSize.x, gridSize.y];
@@ -221,8 +222,7 @@ public class GridManager : MonoBehaviour
             }
         }
     }
-
-    public void InitializeBricks()
+    private List<Brick> InitializeBricks()
     {
         int amountExplosive = 0;
         int amountMaxExplosive = 5;
@@ -249,7 +249,13 @@ public class GridManager : MonoBehaviour
                 spawnedBrick.Initialize(cellPosition);
             }
         }
+
+        return brickDictionary.Values.ToList();
     }
-    
-    
+    public List<Brick> SpawnLevel()
+    {
+        GenerateGrid();
+        
+        return InitializeBricks();
+    }
 }

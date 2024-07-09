@@ -1,15 +1,33 @@
 using System.Collections;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 /// <summary>
 /// Simple class that controls the ball
 /// </summary>
 public class Ball : MonoBehaviour
 {
-	[SerializeField] private Rigidbody2D ballRigidBody;
 	[SerializeField] private float speed = 5f;
+	
+	private Rigidbody2D ballRigidBody;
+	private SpringComponent ballSpringComponent;
+	private TrailRenderer ballTrailRenderer;
+	
+	private Vector3 startScale;
+	private float trailStartWidth;
+	
+	private void Awake()
+	{
+		ballRigidBody = GetComponent<Rigidbody2D>();
+		ballSpringComponent = GetComponent<SpringComponent>();
+		ballTrailRenderer = GetComponent<TrailRenderer>();
+		
+		ballSpringComponent.SetEquilibriumPosition(1);
+		startScale = transform.localScale;
+		trailStartWidth = ballTrailRenderer.startWidth;
+	}
 
-	protected IEnumerator Start()
+	private IEnumerator Start()
 	{
 		Vector3 force = Vector3.zero;
 
@@ -21,33 +39,33 @@ public class Ball : MonoBehaviour
 		ballRigidBody.AddForce(force.normalized * speed);
 	}
 
-	protected void FixedUpdate()
+	private void FixedUpdate()
 	{
-		ballRigidBody.velocity = ballRigidBody.velocity.normalized * speed;
+		Move();
 	}
 
-	protected void OnCollisionEnter2D(Collision2D collision)
+	private void Update()
 	{
+		transform.localScale = ballSpringComponent.Position * startScale;
+		ballTrailRenderer.widthMultiplier = trailStartWidth * ballSpringComponent.Position;
+	}
+
+	//Maybe rewrite this in the case of the ball travelling too fast
+	private void OnCollisionEnter2D(Collision2D collision)
+	{
+		
+		ballSpringComponent.Nudge(1.25f);
+		
 		if (collision.gameObject.CompareTag("Wall"))
 		{
 			return;
 		}
 		
+		//Make this a bounce function. This way I could make hit stop.
 		if (collision.gameObject.CompareTag("Player"))
 		{
-			Vector2 paddlePosition = collision.transform.position;
-			Vector2 contactPoint = collision.GetContact(0).point;
-
-			float offset = paddlePosition.x - contactPoint.x;
-			float maxOffset = collision.collider.bounds.size.x / 2;
-
-			float currentAngle = Vector2.SignedAngle(Vector2.up, ballRigidBody.velocity);
-			float bounceAngle = (offset / maxOffset) * 75f;
-			float newAngle = Mathf.Clamp(currentAngle + bounceAngle, -75f, 75f);
-
-			Quaternion rotation = Quaternion.AngleAxis(newAngle, Vector3.forward);
-			ballRigidBody.velocity = rotation * Vector2.up * ballRigidBody.velocity.magnitude;
-
+			Bounce(collision);
+			
 			return;
 		}
 		
@@ -62,5 +80,26 @@ public class Ball : MonoBehaviour
 				}
 			}
 		}
+	}
+
+	private void Move()
+	{
+		ballRigidBody.velocity = ballRigidBody.velocity.normalized * speed;
+	}
+
+	private void Bounce(Collision2D collision)
+	{
+		Vector2 paddlePosition = collision.transform.position;
+		Vector2 contactPoint = collision.GetContact(0).point;
+
+		float offset = paddlePosition.x - contactPoint.x;
+		float maxOffset = collision.collider.bounds.size.x / 2;
+
+		float currentAngle = Vector2.SignedAngle(Vector2.up, ballRigidBody.velocity);
+		float bounceAngle = (offset / maxOffset) * 75f;
+		float newAngle = Mathf.Clamp(currentAngle + bounceAngle, -75f, 75f);
+			
+		Quaternion rotation = Quaternion.AngleAxis(newAngle, Vector3.forward);
+		ballRigidBody.velocity = rotation * Vector2.up * ballRigidBody.velocity.magnitude;
 	}
 }
