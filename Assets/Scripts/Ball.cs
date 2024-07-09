@@ -7,6 +7,7 @@ using Random = UnityEngine.Random;
 /// </summary>
 public class Ball : MonoBehaviour
 {
+	[SerializeField] private Transform ballSprite;
 	[SerializeField] private float speed = 5f;
 	
 	private Rigidbody2D ballRigidBody;
@@ -23,7 +24,7 @@ public class Ball : MonoBehaviour
 		ballTrailRenderer = GetComponent<TrailRenderer>();
 		
 		ballSpringComponent.SetEquilibriumPosition(1);
-		startScale = transform.localScale;
+		startScale = ballSprite.localScale;
 		trailStartWidth = ballTrailRenderer.startWidth;
 	}
 
@@ -46,7 +47,7 @@ public class Ball : MonoBehaviour
 
 	private void Update()
 	{
-		transform.localScale = ballSpringComponent.Position * startScale;
+		ballSprite.localScale = ballSpringComponent.Position * startScale;
 		ballTrailRenderer.widthMultiplier = trailStartWidth * ballSpringComponent.Position;
 	}
 

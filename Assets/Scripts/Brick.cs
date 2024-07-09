@@ -16,7 +16,9 @@ public class Brick : MonoBehaviour, IBrick
     private Vector2Int gridPosition;
     private bool isDestroyed;
     
-    private SpriteRenderer renderer;
+    private Rigidbody2D brickRigidBody;
+    private Collider2D brickCollider;
+    private SpriteRenderer brickRenderer;
     private Color startColor;
     
     public BrickTypes BrickType => brickType;
@@ -28,8 +30,17 @@ public class Brick : MonoBehaviour, IBrick
     
     private void Awake()
     {
-        renderer = GetComponent<SpriteRenderer>();
+        brickRigidBody = GetComponent<Rigidbody2D>();
+        brickCollider = GetComponent<Collider2D>();
+        brickRenderer = GetComponent<SpriteRenderer>();
         brickType = BrickTypes.NORMAL;
+    }
+
+    private void KnockOff()
+    {
+        brickCollider.excludeLayers = LayerMask.GetMask("Default", "Brick");
+        brickRigidBody.isKinematic = false;
+        brickRigidBody.AddForce(Vector2.up * 5);
     }
     
     public void Initialize(Vector2Int positionOnGrid, IEnumerable<Brick> neighboursCollection = null)
@@ -42,9 +53,8 @@ public class Brick : MonoBehaviour, IBrick
             neighbours = neighboursCollection.ToList();
         }
 
-        startColor = renderer.color;
+        startColor = brickRenderer.color;
     }
-
     public void SetBrickType(BrickTypes type)
     {
         brickType = type;
@@ -65,22 +75,21 @@ public class Brick : MonoBehaviour, IBrick
         switch (brickType)
         {
             case BrickTypes.NORMAL:
-                renderer.color = Color.white;
+                brickRenderer.color = Color.white;
                 break;
             case BrickTypes.EXPLOSIVE:
-                renderer.color = Color.blue;
+                brickRenderer.color = Color.blue;
                 willHitNeighbours = true;
                 break;
             case BrickTypes.SUPEREXPLOSIVE:
-                renderer.color = Color.yellow;
+                brickRenderer.color = Color.yellow;
                 willHitNeighbours = true;
                 break;
             default:
-                renderer.color = Color.green;
+                brickRenderer.color = Color.green;
                 break;
         }
     }
-
     public void OnResolveHit()
     {
         currentLives--;
@@ -91,8 +100,14 @@ public class Brick : MonoBehaviour, IBrick
         }
         else if(gameObject.activeSelf)
         {
-            gameObject.SetActive(false);
-
+            if (brickType == BrickTypes.NORMAL)
+            {
+                KnockOff();
+            }
+            else
+            {
+                gameObject.SetActive(false);
+            }
             isDestroyed = true;
         }
     }
