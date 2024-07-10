@@ -173,3 +173,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxLives: 5
   brickType: 0
+  breakColor: {r: 1, g: 0, b: 0, a: 1}
+  fadedColor: {r: 0.56, g: 0.56, b: 0.56, a: 0.49803922}
+  fadeToForeGroundTime: 2
+  fadeColorAlpha: 0

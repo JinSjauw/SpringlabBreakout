@@ -1,12 +1,16 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class Brick : MonoBehaviour, IBrick
 {
     [SerializeField] private int maxLives;
     [SerializeField] private BrickTypes brickType;
+
+    [SerializeField] private Color breakColor;
+    [SerializeField] private Color fadedColor;
+    [SerializeField] private float fadeToForeGroundTime;
     
     //IBrick fields
     private List<Brick> neighbours;
@@ -19,7 +23,9 @@ public class Brick : MonoBehaviour, IBrick
     private Rigidbody2D brickRigidBody;
     private Collider2D brickCollider;
     private SpriteRenderer brickRenderer;
+    
     private Color startColor;
+    [SerializeField] private float fadeColorAlpha;
     
     public BrickTypes BrickType => brickType;
     public IEnumerable<IBrick> Neighbours => neighbours;
@@ -36,6 +42,21 @@ public class Brick : MonoBehaviour, IBrick
         brickType = BrickTypes.NORMAL;
     }
 
+    private void Update()
+    {
+        //Make it more grey
+        if (isDestroyed && gameObject.activeSelf)
+        {
+            fadeColorAlpha = Mathf.MoveTowards(fadeColorAlpha, 1, fadeToForeGroundTime * Time.deltaTime);
+            if (fadeColorAlpha < 1)
+            {
+                brickRenderer.color = Color.Lerp(startColor, fadedColor, fadeColorAlpha);
+            }
+        }
+    }
+
+    #region Private Functions
+
     private void KnockOff(Vector3 source)
     {
         brickCollider.excludeLayers = LayerMask.GetMask("Default", "Brick");
@@ -44,10 +65,15 @@ public class Brick : MonoBehaviour, IBrick
         Vector3 knockBackForce = (transform.position - source).normalized * 15;
         
         brickRigidBody.AddForce(knockBackForce, ForceMode2D.Impulse);
-
+        brickRigidBody.AddTorque(Random.Range(0.3f, 3), ForceMode2D.Impulse);
+        
         isDestroyed = true;
     }
-    
+
+    #endregion
+
+    #region Public Functions
+
     public void Initialize(Vector2Int positionOnGrid, IEnumerable<Brick> neighboursCollection = null)
     {
         gridPosition = positionOnGrid;
@@ -59,6 +85,8 @@ public class Brick : MonoBehaviour, IBrick
         }
 
         startColor = brickRenderer.color;
+        breakColor += startColor;
+        fadedColor *= startColor;
     }
     public void SetBrickType(BrickTypes type)
     {
@@ -95,14 +123,13 @@ public class Brick : MonoBehaviour, IBrick
                 break;
         }
     }
-    
     public void OnResolveHit()
     {
         currentLives--;
         
         if (currentLives > 0)
         {
-            GetComponent<SpriteRenderer>().color = Color.Lerp(Color.red, startColor, currentLives / (float)maxLives);
+            brickRenderer.color = Color.Lerp(breakColor, startColor, currentLives / (float)maxLives);
         }
         else if(gameObject.activeSelf && !isDestroyed)
         {
@@ -111,7 +138,6 @@ public class Brick : MonoBehaviour, IBrick
             isDestroyed = true;
         }
     }
-
     public void Hit(Vector3 ballPosition)
     {
         if (BrickType == BrickTypes.NORMAL || !WillHitNeighboursOnDeath)
@@ -131,4 +157,7 @@ public class Brick : MonoBehaviour, IBrick
             }
         }
     }
+
+    #endregion
+    
 }
