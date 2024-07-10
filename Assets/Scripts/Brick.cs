@@ -62,9 +62,9 @@ public class Brick : MonoBehaviour, IBrick
         brickCollider.excludeLayers = LayerMask.GetMask("Default", "Brick");
         brickRigidBody.isKinematic = false;
 
-        Vector3 knockBackForce = (transform.position - source).normalized * 15;
+        Vector3 knockBackForce = (transform.position - source).normalized;
         
-        brickRigidBody.AddForce(knockBackForce, ForceMode2D.Impulse);
+        brickRigidBody.AddForce(knockBackForce * Random.Range(8, 22), ForceMode2D.Impulse);
         brickRigidBody.AddTorque(Random.Range(0.3f, 3), ForceMode2D.Impulse);
         
         isDestroyed = true;
