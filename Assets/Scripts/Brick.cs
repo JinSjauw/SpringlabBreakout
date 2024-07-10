@@ -36,11 +36,16 @@ public class Brick : MonoBehaviour, IBrick
         brickType = BrickTypes.NORMAL;
     }
 
-    private void KnockOff()
+    private void KnockOff(Vector3 source)
     {
         brickCollider.excludeLayers = LayerMask.GetMask("Default", "Brick");
         brickRigidBody.isKinematic = false;
-        brickRigidBody.AddForce(Vector2.up * 5);
+
+        Vector3 knockBackForce = (transform.position - source).normalized * 15;
+        
+        brickRigidBody.AddForce(knockBackForce, ForceMode2D.Impulse);
+
+        isDestroyed = true;
     }
     
     public void Initialize(Vector2Int positionOnGrid, IEnumerable<Brick> neighboursCollection = null)
@@ -90,6 +95,7 @@ public class Brick : MonoBehaviour, IBrick
                 break;
         }
     }
+    
     public void OnResolveHit()
     {
         currentLives--;
@@ -98,17 +104,31 @@ public class Brick : MonoBehaviour, IBrick
         {
             GetComponent<SpriteRenderer>().color = Color.Lerp(Color.red, startColor, currentLives / (float)maxLives);
         }
-        else if(gameObject.activeSelf)
+        else if(gameObject.activeSelf && !isDestroyed)
         {
-            if (brickType == BrickTypes.NORMAL)
-            {
-                KnockOff();
-            }
-            else
-            {
-                gameObject.SetActive(false);
-            }
+            gameObject.SetActive(false);
+            
             isDestroyed = true;
+        }
+    }
+
+    public void Hit(Vector3 ballPosition)
+    {
+        if (BrickType == BrickTypes.NORMAL || !WillHitNeighboursOnDeath)
+        {
+            KnockOff(ballPosition);
+            
+            return;
+        }
+        
+        foreach (IBrick brick in BrickResolver.ResolveBricksToDestroy(this))
+        {
+            Brick brickToDestroy = (Brick)brick;
+            
+            if (brickToDestroy.WillHitNeighboursOnDeath && !brickToDestroy.IsDestroyed)
+            {
+                foreach (IBrick brickNeighbour in BrickResolver.ResolveBricksToDestroy(brick)) { }
+            }
         }
     }
 }

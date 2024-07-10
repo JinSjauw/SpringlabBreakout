@@ -88,7 +88,7 @@ public class GridManager : MonoBehaviour
         {
             Vector2Int neighbourPosition = gridPosition + Vector2Int.down * (i + 1);
 
-            if (neighbourPosition.y >= 0 && brickDictionary.ContainsKey(neighbourPosition))
+            if (brickDictionary.ContainsKey(neighbourPosition))
             {
                 yield return brickDictionary[neighbourPosition];
             }
@@ -99,7 +99,7 @@ public class GridManager : MonoBehaviour
         {
             Vector2Int neighbourPosition = gridPosition + Vector2Int.left * (i + 1);
 
-            if (neighbourPosition.x >= 0 && brickDictionary.ContainsKey(neighbourPosition))
+            if (brickDictionary.ContainsKey(neighbourPosition))
             {
                 yield return brickDictionary[neighbourPosition];
             }
@@ -115,7 +115,7 @@ public class GridManager : MonoBehaviour
             
             Vector2Int neighbourPosition = gridPosition + Vector2Int.up * (i + 1);
 
-            if (neighbourPosition.y <= gridSize.y && brickDictionary.ContainsKey(neighbourPosition))
+            if (brickDictionary.ContainsKey(neighbourPosition))
             {
                 yield return brickDictionary[neighbourPosition];
             }
@@ -131,7 +131,7 @@ public class GridManager : MonoBehaviour
             
             Vector2Int neighbourPosition = gridPosition + Vector2Int.right * (i + 1);
 
-            if (neighbourPosition.x <= gridSize.x && brickDictionary.ContainsKey(neighbourPosition))
+            if (brickDictionary.ContainsKey(neighbourPosition))
             {
                 yield return brickDictionary[neighbourPosition];
             }
@@ -143,44 +143,44 @@ public class GridManager : MonoBehaviour
         //Get NWSE neighbours
         
         //North West
-        for (int i = 0; i < range; i++)
+        for (int i = 0; i <= range; i++)
         {
-            Vector2Int neighbourPosition = gridPosition + (Vector2Int.right + Vector2Int.down) * (i + 1);
+            Vector2Int neighbourPosition = gridPosition + (Vector2Int.left + Vector2Int.down) * (i + 1);
 
-            if (neighbourPosition.y >= 0 && neighbourPosition.x >= 0 && brickDictionary.ContainsKey(neighbourPosition))
+            if (brickDictionary.ContainsKey(neighbourPosition))
             {
                 yield return brickDictionary[neighbourPosition];
             }
         }
         
         //North East
-        for (int i = 0; i < range; i++)
+        for (int i = 0; i <= range; i++)
         {
-            Vector2Int neighbourPosition = gridPosition + (Vector2Int.left + Vector2Int.down) * (i + 1);
+            Vector2Int neighbourPosition = gridPosition + (Vector2Int.right + Vector2Int.down) * (i + 1);
 
-            if (neighbourPosition.y <= 0 && neighbourPosition.x <= gridSize.x && brickDictionary.ContainsKey(neighbourPosition))
+            if (brickDictionary.ContainsKey(neighbourPosition))
             {
                 yield return brickDictionary[neighbourPosition];
             }
         }
         
         //South West
-        for (int i = 0; i < range; i++)
+        for (int i = 0; i <= range; i++)
         {
-            Vector2Int neighbourPosition = gridPosition + (Vector2Int.right + Vector2Int.up) * (i + 1);
+            Vector2Int neighbourPosition = gridPosition + (Vector2Int.left + Vector2Int.up) * (i + 1);
 
-            if (neighbourPosition.y <= gridSize.y && neighbourPosition.x >= 0 && brickDictionary.ContainsKey(neighbourPosition))
+            if (brickDictionary.ContainsKey(neighbourPosition))
             {
                 yield return brickDictionary[neighbourPosition];
             }
         }
         
         //South East
-        for (int i = 0; i < range; i++)
+        for (int i = 0; i <= range; i++)
         {
-            Vector2Int neighbourPosition = gridPosition + (Vector2Int.left + Vector2Int.up) * (i + 1);
+            Vector2Int neighbourPosition = gridPosition + (Vector2Int.right + Vector2Int.up) * (i + 1);
 
-            if (neighbourPosition.y <= gridSize.y && neighbourPosition.x <= gridSize.x && brickDictionary.ContainsKey(neighbourPosition))
+            if (brickDictionary.ContainsKey(neighbourPosition))
             {
                 yield return brickDictionary[neighbourPosition];
             }
@@ -231,8 +231,8 @@ public class GridManager : MonoBehaviour
         List<Brick> normalBricksList = brickDictionary.Values.ToList();
         
         //Designate random brick types
-        SetBrickTypes(GetRandomBricks(ref normalBricksList, .2f), BrickTypes.EXPLOSIVE);
-        SetBrickTypes(GetRandomBricks(ref normalBricksList, .1f), BrickTypes.SUPEREXPLOSIVE);
+        SetBrickTypes(GetRandomBricks(ref normalBricksList, .25f), BrickTypes.EXPLOSIVE);
+        //SetBrickTypes(GetRandomBricks(ref normalBricksList, .1f), BrickTypes.SUPEREXPLOSIVE);
         //SetBrickTypes(GetRandomBricks(ref normalBricksList, .4f), BrickTypes.POWERUP);
         
         foreach (KeyValuePair<Vector2Int, Brick> brickData in brickDictionary)

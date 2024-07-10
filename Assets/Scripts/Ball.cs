@@ -72,14 +72,18 @@ public class Ball : MonoBehaviour
 		
 		if (collision.gameObject.TryGetComponent(out IBrick source))
 		{
-			foreach (IBrick brick in BrickResolver.ResolveBricksToDestroy(source))
+			Brick brickToDestroy = (Brick)source;
+
+			brickToDestroy.Hit(transform.position);
+
+			/*foreach (IBrick brick in BrickResolver.ResolveBricksToDestroy(source))
 			{
 				Brick brickToDestroy = (Brick)brick;
 				if (brickToDestroy.WillHitNeighboursOnDeath && !brickToDestroy.IsDestroyed)
 				{
 					foreach (IBrick brickNeighbours in BrickResolver.ResolveBricksToDestroy(brickToDestroy)) { }
 				}
-			}
+			}*/
 		}
 	}
 
