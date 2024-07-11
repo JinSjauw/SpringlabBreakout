@@ -11,9 +11,8 @@ public class PaddleController : MonoBehaviour
 	[SerializeField] private float moveSpeed = 10;
 	
 	private Rigidbody2D paddleRigidBody;
-	//private SpriteRenderer paddleRenderer;
 
-	private SpringComponent paddleSpringComponent;
+	private SpringComponent paddleSpring;
 	private Vector3 startScale;
 	
 	private Vector2 moveDirection;
@@ -22,9 +21,9 @@ public class PaddleController : MonoBehaviour
 	private void Awake()
 	{
 		paddleRigidBody = GetComponent<Rigidbody2D>();
-		paddleSpringComponent = GetComponent<SpringComponent>();
-		paddleSpringComponent.SetEquilibriumPosition(1);
-		
+		paddleSpring = GetComponent<SpringComponent>();
+		paddleSpring.SetEquilibriumPosition(1);
+		paddleSpring.Nudge(1.5f);
 		startScale = transform.localScale;
 	}
 
@@ -40,14 +39,14 @@ public class PaddleController : MonoBehaviour
 
 	private void Update()
 	{
-		Squash(paddleSpringComponent.SpringValue);
+		Squash(paddleSpring.SpringValue);
 	}
 
 	private void OnCollisionEnter2D(Collision2D other)
 	{
 		if (other.collider.CompareTag("Ball"))
 		{
-			paddleSpringComponent.Nudge(.75f);
+			paddleSpring.Nudge(.75f);
 		}
 	}
 

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -224,10 +223,6 @@ public class GridManager : MonoBehaviour
     }
     private List<Brick> InitializeBricks()
     {
-        //int amountExplosive = 0;
-        //int amountMaxExplosive = 5;
-
-
         List<Brick> normalBricksList = brickDictionary.Values.ToList();
         
         //Designate random brick types

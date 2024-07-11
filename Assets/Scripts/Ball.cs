@@ -7,11 +7,12 @@ using Random = UnityEngine.Random;
 /// </summary>
 public class Ball : MonoBehaviour
 {
+	[SerializeField] private GameEventChannel gameEventChannel;
 	[SerializeField] private Transform ballSprite;
 	[SerializeField] private float speed = 5f;
 	
 	private Rigidbody2D ballRigidBody;
-	private SpringComponent ballSpringComponent;
+	private SpringComponent ballSpring;
 	private TrailRenderer ballTrailRenderer;
 	
 	private Vector3 startScale;
@@ -20,10 +21,11 @@ public class Ball : MonoBehaviour
 	private void Awake()
 	{
 		ballRigidBody = GetComponent<Rigidbody2D>();
-		ballSpringComponent = GetComponent<SpringComponent>();
+		ballSpring = GetComponent<SpringComponent>();
 		ballTrailRenderer = GetComponent<TrailRenderer>();
 		
-		ballSpringComponent.SetEquilibriumPosition(1);
+		ballSpring.SetEquilibriumPosition(1);
+		ballSpring.Nudge(-1);
 		startScale = ballSprite.localScale;
 		trailStartWidth = ballTrailRenderer.startWidth;
 	}
@@ -53,10 +55,11 @@ public class Ball : MonoBehaviour
 	//Maybe rewrite this in the case of the ball travelling too fast
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
-		ballSpringComponent.Nudge(1.25f);
+		ballSpring.Nudge(1.25f);
 		
 		if (collision.gameObject.CompareTag("Wall"))
 		{
+			gameEventChannel.BallBouncedOnWall();
 			return;
 		}
 		
@@ -83,8 +86,8 @@ public class Ball : MonoBehaviour
 
 	private void HandleSquash()
 	{
-		ballSprite.localScale = ballSpringComponent.SpringValue * startScale;
-		ballTrailRenderer.widthMultiplier = trailStartWidth * ballSpringComponent.SpringValue;
+		ballSprite.localScale = ballSpring.SpringValue * startScale;
+		ballTrailRenderer.widthMultiplier = trailStartWidth * ballSpring.SpringValue;
 	}
 	
 	private void Bounce(Collision2D collision)

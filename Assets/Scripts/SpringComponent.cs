@@ -7,8 +7,8 @@ public class SpringComponent : MonoBehaviour
         [SerializeField] private float angularFrequency;
         [SerializeField] private float dampingRatio;
 
-        [FormerlySerializedAs("position")] [SerializeField] private float springValue;
-        [SerializeField] private float velocity;
+        private float springValue;
+        private float velocity;
         private float equilibriumPosition;
         
         private SpringMotionParams springMotionParams;
