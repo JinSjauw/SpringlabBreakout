@@ -1,7 +1,5 @@
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 public class GridManager : MonoBehaviour
 {
@@ -15,6 +13,7 @@ public class GridManager : MonoBehaviour
     
     private GridCell[,] currentGrid;
     private Dictionary<Vector2Int, Brick> brickDictionary;
+    private List<Brick> activeBricks;
 
     private void Awake()
     {
@@ -25,56 +24,6 @@ public class GridManager : MonoBehaviour
         else
         {
             Instance = this;   
-        }
-    }
-
-    //Get a list of random instantiated bricks.
-    private List<Brick> GetRandomBricks( ref List<Brick> bricksList, float percentage)
-    {
-        List<Brick> result = new List<Brick>();
-        
-        int amountToGet = (int)(bricksList.Count * percentage);
-
-        if (amountToGet <= 0)
-        {
-            Debug.Log("Nothing Left In the List!");
-            return result;
-        }
-        
-        //Debug.Log("Getting Random Bricks! " + " Amount to get: " + amountToGet + " Brick count: " + bricksList.Count + " Percentage: " + percentage);
-        
-        for (int i = 0; i < amountToGet; i++)
-        {
-            Brick selectedBrick = bricksList[Random.Range(0, bricksList.Count - 1)];
-            
-            result.Add(selectedBrick);
-            bricksList.Remove(selectedBrick);
-        }
-        
-        return result;
-    }
-    private void SetBrickTypes(List<Brick> bricksToSet, BrickTypes type)
-    {
-        foreach (Brick brick in bricksToSet)
-        {
-            brick.SetBrickType(type);
-        }
-    }
-    private IEnumerable<Brick> GetNeighbours(Brick source, int range = 1, bool diagonal = false)
-    {
-        if (diagonal)
-        {
-            foreach (Brick neighbour in GetDiagonalNeighbours(source, range))
-            {
-                yield return neighbour;
-            }
-        }
-        else
-        {
-            foreach (Brick neighbour in GetStraightNeighbours(source, range))
-            {
-                yield return neighbour;
-            }
         }
     }
     private IEnumerable<Brick> GetStraightNeighbours(Brick source, int range = 1)
@@ -185,7 +134,6 @@ public class GridManager : MonoBehaviour
             }
         }
     }
-    
     private void GenerateGrid()
     {
         //Delete last objects before making new ones
@@ -216,41 +164,33 @@ public class GridManager : MonoBehaviour
                 brickTransform.name = "Brick: " + newCell.gridPosition;
                 brickTransform.position = newCell.worldPosition;
                 brickTransform.localScale = brickSize;
-            
+                
                 brickDictionary.Add(newCell.gridPosition, spawnedBrick);
             }
         }
     }
-    private List<Brick> InitializeBricks()
+    
+    public IEnumerable<Brick> GetNeighbours(Brick source, int range = 1, bool diagonal = false)
     {
-        List<Brick> normalBricksList = brickDictionary.Values.ToList();
-        
-        //Designate random brick types
-        SetBrickTypes(GetRandomBricks(ref normalBricksList, .25f), BrickTypes.EXPLOSIVE);
-        SetBrickTypes(GetRandomBricks(ref normalBricksList, .1f), BrickTypes.SUPEREXPLOSIVE);
-        SetBrickTypes(GetRandomBricks(ref normalBricksList, .4f), BrickTypes.POWERUP);
-        
-        foreach (KeyValuePair<Vector2Int, Brick> brickData in brickDictionary)
+        if (diagonal)
         {
-            Vector2Int cellPosition = brickData.Key;
-            Brick spawnedBrick = brickData.Value;
-            
-            if (spawnedBrick.BrickType != BrickTypes.NORMAL)
+            foreach (Brick neighbour in GetDiagonalNeighbours(source, range))
             {
-                spawnedBrick.Initialize(cellPosition, GetNeighbours(spawnedBrick, spawnedBrick.BrickType == BrickTypes.SUPEREXPLOSIVE ? 4 : 2, spawnedBrick.BrickType == BrickTypes.EXPLOSIVE));
-            }
-            else
-            {
-                spawnedBrick.Initialize(cellPosition);
+                yield return neighbour;
             }
         }
-
-        return brickDictionary.Values.ToList();
+        else
+        {
+            foreach (Brick neighbour in GetStraightNeighbours(source, range))
+            {
+                yield return neighbour;
+            }
+        }
     }
-    public List<Brick> SpawnLevel()
+    
+    public Dictionary<Vector2Int, Brick> SpawnLevel()
     {
         GenerateGrid();
-        
-        return InitializeBricks();
+        return brickDictionary;
     }
 }

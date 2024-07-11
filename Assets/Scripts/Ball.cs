@@ -8,9 +8,14 @@ using Random = UnityEngine.Random;
 public class Ball : MonoBehaviour
 {
 	[SerializeField] private GameEventChannel gameEventChannel;
+
+	[SerializeField] private GameObject impactFXPrefab;
+	[SerializeField] private GameObject paddleImpactFXPrefab;
+	
 	[SerializeField] private Transform ballSprite;
 	[SerializeField] private float speed = 5f;
-	
+
+	private ObjectPool objectPool;
 	private Rigidbody2D ballRigidBody;
 	private SpringComponent ballSpring;
 	private TrailRenderer ballTrailRenderer;
@@ -32,6 +37,8 @@ public class Ball : MonoBehaviour
 
 	private IEnumerator Start()
 	{
+		objectPool = FindObjectOfType<ObjectPool>();
+		
 		Vector3 force = Vector3.zero;
 
 		yield return new WaitForSeconds(2);
@@ -55,6 +62,9 @@ public class Ball : MonoBehaviour
 	//Maybe rewrite this in the case of the ball travelling too fast
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
+		Vector3 collisionPoint = collision.GetContact(0).point;
+		
+		PlayFX(impactFXPrefab, collisionPoint);
 		ballSpring.Nudge(1.25f);
 		
 		if (collision.gameObject.CompareTag("Wall"))
@@ -66,6 +76,7 @@ public class Ball : MonoBehaviour
 		//Make this a bounce function. This way I could make hit stop.
 		if (collision.gameObject.CompareTag("Player"))
 		{
+			PlayFX(paddleImpactFXPrefab, collisionPoint);
 			Bounce(collision);
 			
 			return;
@@ -79,6 +90,12 @@ public class Ball : MonoBehaviour
 		}
 	}
 
+	private void PlayFX(GameObject prefabFX, Vector3 position)
+	{
+		GameObject impactFX = objectPool.GetObject(prefabFX);
+		impactFX.transform.position = position;
+	}
+	
 	private void Move()
 	{
 		ballRigidBody.velocity = ballRigidBody.velocity.normalized * speed;

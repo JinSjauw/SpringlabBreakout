@@ -171,9 +171,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 94eaf026a6f4c2645acb536a0eb416f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxLives: 5
+  maxLives: 2
   brickType: 0
   breakColor: {r: 1, g: 0, b: 0, a: 1}
   fadedColor: {r: 0.56, g: 0.56, b: 0.56, a: 0.49803922}
   fadeToForeGroundTime: 2
-  fadeColorAlpha: 0
+  explosiveFXPrefab: {fileID: 1933578714016439100, guid: 3bdc2d0c170b3414c8cb51a2e47c85f8, type: 3}
+  superExplosiveFXPrefab: {fileID: 8610009387300910948, guid: 44c54435595eb964e9a2bcfc73af08db, type: 3}
+  breakFXPrefab: {fileID: 6626855214805937907, guid: b7312c0dd5b23354e91a2e58bdd7bc1d, type: 3}
