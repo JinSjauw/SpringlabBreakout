@@ -728,8 +728,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 19f8b6acc1564434286c4a20b212e0e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  angularFrequency: 30
-  dampingRatio: 0.2
+  angularFrequency: 23
+  dampingRatio: 0.1
 --- !u!1 &577466507
 GameObject:
   m_ObjectHideFlags: 0
@@ -914,8 +914,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 19f8b6acc1564434286c4a20b212e0e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  angularFrequency: 30
-  dampingRatio: 0.2
+  angularFrequency: 23
+  dampingRatio: 0.1
 --- !u!1 &589129672
 GameObject:
   m_ObjectHideFlags: 0
@@ -1061,10 +1061,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 19969fb2a7bac3f4bbbe5134b76fa05d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  angularFrequencyX: 12
-  dampingRatioX: 0.3
-  angularFrequencyY: 12
-  dampingRatioY: 0.3
+  angularFrequencyX: 10
+  dampingRatioX: 0.5
+  angularFrequencyY: 10
+  dampingRatioY: 0.5
 --- !u!114 &670063679
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1079,7 +1079,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   inputHandler: {fileID: 11400000, guid: 849ed67481aa0e2429de8d829b94912a, type: 2}
   gameEventChannel: {fileID: 11400000, guid: 4a4588a17dc88f94f9b8e0cd051fac53, type: 2}
-  cameraShakePower: 0.3
+  cameraShakePower: 0.15
 --- !u!4 &670063680
 Transform:
   m_ObjectHideFlags: 0
@@ -1555,7 +1555,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   angularFrequency: 27
-  dampingRatio: 0.2
+  dampingRatio: 0.1
 --- !u!1 &1518252258
 GameObject:
   m_ObjectHideFlags: 0

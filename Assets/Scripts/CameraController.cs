@@ -30,7 +30,6 @@ public class CameraController : MonoBehaviour
         ShakeCamera();    
     }
     
-
     // Update is called once per frame
     void Update()
     {
@@ -39,9 +38,11 @@ public class CameraController : MonoBehaviour
 
     public void ShakeCamera()
     {
-        Vector2 randomShakeDirection = new Vector2(
-            Random.Range(-cameraShakePower, cameraShakePower), 
-            Random.Range(-cameraShakePower, cameraShakePower));
+        float xShakePower = Random.value > 0.5f ? cameraShakePower : -cameraShakePower;
+        float yShakePower = Random.value > 0.5f ? cameraShakePower : -cameraShakePower;
+        
+        Vector2 randomShakeDirection = new Vector2(xShakePower, yShakePower);
+        
         cameraSpring.Nudge(randomShakeDirection.x, randomShakeDirection.y);
     }
 }
