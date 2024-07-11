@@ -16,7 +16,7 @@ public class Wall : MonoBehaviour
 
     private void Update()
     {
-        transform.localScale = new Vector3(startScale.x * wallSpringComponent.Position, startScale.y, startScale.z);
+        transform.localScale = new Vector3(startScale.x * wallSpringComponent.SpringValue, startScale.y, startScale.z);
     }
 
     private void OnCollisionEnter2D(Collision2D other)

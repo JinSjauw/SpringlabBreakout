@@ -1,18 +1,19 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
-    public class SpringComponent : MonoBehaviour
+public class SpringComponent : MonoBehaviour
     {
         [Header("Spring Params")] 
         [SerializeField] private float angularFrequency;
         [SerializeField] private float dampingRatio;
 
-        [SerializeField] private float position;
+        [FormerlySerializedAs("position")] [SerializeField] private float springValue;
         [SerializeField] private float velocity;
         private float equilibriumPosition;
         
         private SpringMotionParams springMotionParams;
 
-        public float Position => position;
+        public float SpringValue => springValue;
         
         private void Awake()
         {
@@ -27,7 +28,7 @@ using UnityEngine;
         private void UpdateSpring()
         {
             SpringUtils.CalcDampedSpringMotionParams(springMotionParams, Time.deltaTime, angularFrequency, dampingRatio);
-            SpringUtils.UpdateDampedSpringMotion(ref position, ref velocity, equilibriumPosition, springMotionParams);
+            SpringUtils.UpdateDampedSpringMotion(ref springValue, ref velocity, equilibriumPosition, springMotionParams);
         }
 
         public void SetEquilibriumPosition(float target)
@@ -37,7 +38,7 @@ using UnityEngine;
 
         public void Nudge(float value)
         {
-            position += value;
+            springValue += value;
         }
     }
 

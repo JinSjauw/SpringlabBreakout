@@ -224,16 +224,16 @@ public class GridManager : MonoBehaviour
     }
     private List<Brick> InitializeBricks()
     {
-        int amountExplosive = 0;
-        int amountMaxExplosive = 5;
+        //int amountExplosive = 0;
+        //int amountMaxExplosive = 5;
 
 
         List<Brick> normalBricksList = brickDictionary.Values.ToList();
         
         //Designate random brick types
         SetBrickTypes(GetRandomBricks(ref normalBricksList, .25f), BrickTypes.EXPLOSIVE);
-        //SetBrickTypes(GetRandomBricks(ref normalBricksList, .1f), BrickTypes.SUPEREXPLOSIVE);
-        //SetBrickTypes(GetRandomBricks(ref normalBricksList, .4f), BrickTypes.POWERUP);
+        SetBrickTypes(GetRandomBricks(ref normalBricksList, .1f), BrickTypes.SUPEREXPLOSIVE);
+        SetBrickTypes(GetRandomBricks(ref normalBricksList, .4f), BrickTypes.POWERUP);
         
         foreach (KeyValuePair<Vector2Int, Brick> brickData in brickDictionary)
         {

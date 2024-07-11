@@ -47,14 +47,12 @@ public class Ball : MonoBehaviour
 
 	private void Update()
 	{
-		ballSprite.localScale = ballSpringComponent.Position * startScale;
-		ballTrailRenderer.widthMultiplier = trailStartWidth * ballSpringComponent.Position;
+		HandleSquash();
 	}
 
 	//Maybe rewrite this in the case of the ball travelling too fast
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
-		
 		ballSpringComponent.Nudge(1.25f);
 		
 		if (collision.gameObject.CompareTag("Wall"))
@@ -75,15 +73,6 @@ public class Ball : MonoBehaviour
 			Brick brickToDestroy = (Brick)source;
 
 			brickToDestroy.Hit(transform.position);
-
-			/*foreach (IBrick brick in BrickResolver.ResolveBricksToDestroy(source))
-			{
-				Brick brickToDestroy = (Brick)brick;
-				if (brickToDestroy.WillHitNeighboursOnDeath && !brickToDestroy.IsDestroyed)
-				{
-					foreach (IBrick brickNeighbours in BrickResolver.ResolveBricksToDestroy(brickToDestroy)) { }
-				}
-			}*/
 		}
 	}
 
@@ -92,6 +81,12 @@ public class Ball : MonoBehaviour
 		ballRigidBody.velocity = ballRigidBody.velocity.normalized * speed;
 	}
 
+	private void HandleSquash()
+	{
+		ballSprite.localScale = ballSpringComponent.SpringValue * startScale;
+		ballTrailRenderer.widthMultiplier = trailStartWidth * ballSpringComponent.SpringValue;
+	}
+	
 	private void Bounce(Collision2D collision)
 	{
 		Vector2 paddlePosition = collision.transform.position;
