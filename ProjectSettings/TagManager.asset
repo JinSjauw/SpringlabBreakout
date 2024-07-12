@@ -7,7 +7,7 @@ TagManager:
   - Wall
   - Brick
   - Ball
-  - FxTemporaire
+  - Bottom
   layers:
   - Default
   - TransparentFX

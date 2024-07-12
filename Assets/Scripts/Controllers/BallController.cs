@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using Ami.BroAudio;
@@ -6,17 +7,22 @@ using Random = UnityEngine.Random;
 /// <summary>
 /// Simple class that controls the ball
 /// </summary>
-public class Ball : MonoBehaviour
+public class BallController : MonoBehaviour
 {
+	[Header("Event Channel")]
 	[SerializeField] private GameEventChannel gameEventChannel;
 
+	[Header("SFX")]
 	[SerializeField] private SoundID ballHitSFX;
 	[SerializeField] private SoundID paddleHitSFX;
 	[SerializeField] private SoundID ballLostSFX;
 	
+	[Header("VFX")]
 	[SerializeField] private GameObject impactFXPrefab;
 	[SerializeField] private GameObject paddleImpactFXPrefab;
+	[SerializeField] private GameObject ballLostFXPrefab;
 	
+	[Header("General")]
 	[SerializeField] private Transform ballSprite;
 	[SerializeField] private float speed = 5f;
 
@@ -24,10 +30,13 @@ public class Ball : MonoBehaviour
 	private Rigidbody2D ballRigidBody;
 	private SpringComponent ballSpring;
 	private TrailRenderer ballTrailRenderer;
-	
+
+	private Vector3 startPosition;
 	private Vector3 startScale;
 	private float trailStartWidth;
-	
+
+	#region Unity Functions
+
 	private void Awake()
 	{
 		ballRigidBody = GetComponent<Rigidbody2D>();
@@ -40,12 +49,31 @@ public class Ball : MonoBehaviour
 		trailStartWidth = ballTrailRenderer.startWidth;
 	}
 
-	private IEnumerator Start()
+	private void Start()
 	{
 		objectPool = FindObjectOfType<ObjectPool>();
+		startPosition = transform.position;
+		StartCoroutine(SpawnBall());
+	}
+
+	private IEnumerator SpawnBall()
+	{
+		ballSprite.gameObject.SetActive(false);
+		ballTrailRenderer.emitting = false;
+		
+		PlayVFX(ballLostFXPrefab, startPosition);
+		ballRigidBody.velocity = Vector3.zero;
+
+		yield return new WaitForSeconds(0.5f);
+		
+		ballSprite.gameObject.SetActive(true);
+		transform.position = startPosition;
+		
+		ballTrailRenderer.Clear();
+		ballTrailRenderer.emitting = true;
 		
 		Vector3 force = Vector3.zero;
-
+		
 		yield return new WaitForSeconds(2);
 
 		force.x = Random.Range(-1f, 1f);
@@ -53,7 +81,7 @@ public class Ball : MonoBehaviour
 
 		ballRigidBody.AddForce(force.normalized * speed);
 	}
-
+	
 	private void FixedUpdate()
 	{
 		Move();
@@ -63,11 +91,21 @@ public class Ball : MonoBehaviour
 	{
 		HandleSquash();
 	}
-
-	//Maybe rewrite this in the case of the ball travelling too fast
+	
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
 		Vector3 collisionPoint = collision.GetContact(0).point;
+
+		if (collision.gameObject.CompareTag("Bottom"))
+		{
+			PlaySFX(ballLostSFX);
+			PlayVFX(ballLostFXPrefab, collisionPoint);
+			
+			gameEventChannel.BallLost();
+			
+			StartCoroutine(SpawnBall());
+		}
+		
 		PlaySFX(ballHitSFX);
 		PlayVFX(impactFXPrefab, collisionPoint);
 		ballSpring.Nudge(1.25f);
@@ -78,7 +116,6 @@ public class Ball : MonoBehaviour
 			return;
 		}
 		
-		//Make this a bounce function. This way I could make hit stop.
 		if (collision.gameObject.CompareTag("Player"))
 		{
 			PlaySFX(paddleHitSFX);
@@ -95,7 +132,11 @@ public class Ball : MonoBehaviour
 			brickToDestroy.Hit(transform.position);
 		}
 	}
+	
+	#endregion
 
+	#region Private Functions
+	
 	private void PlaySFX(SoundID soundID)
 	{
 		BroAudio.Play(soundID);
@@ -133,4 +174,6 @@ public class Ball : MonoBehaviour
 		Quaternion rotation = Quaternion.AngleAxis(newAngle, Vector3.forward);
 		ballRigidBody.velocity = rotation * Vector2.up * ballRigidBody.velocity.magnitude;
 	}
+	
+	#endregion
 }

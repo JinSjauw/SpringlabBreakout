@@ -50,16 +50,18 @@ public class PaddleController : MonoBehaviour
 		}
 	}
 
+	
 	private void Move()
 	{
 		Vector2 paddleVelocity = paddleRigidBody.velocity;
 		Vector2 desiredVelocity = moveDirection * moveSpeed;
 		
+		//Calculate the needed force to reach the desiredV velocity within 1 physics cycle.
 		Vector2 neededAcceleration = (desiredVelocity - paddleVelocity) / Time.fixedDeltaTime;
 		
 		paddleRigidBody.AddForce(neededAcceleration * paddleRigidBody.mass);
 	}
-
+	
 	private void Squash(float springValue)
 	{
 		springValue = Mathf.Clamp(springValue, .2f, 2.25f);

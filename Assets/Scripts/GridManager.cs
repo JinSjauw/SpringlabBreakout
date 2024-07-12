@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Class that generates and manages the grid.
+/// </summary>
 public class GridManager : MonoBehaviour
 {
     [SerializeField] private Vector2Int gridSize;
@@ -26,6 +29,7 @@ public class GridManager : MonoBehaviour
             Instance = this;   
         }
     }
+    
     private IEnumerable<Brick> GetStraightNeighbours(Brick source, int range = 1)
     {
         Vector2Int gridPosition = source.GridPosition;

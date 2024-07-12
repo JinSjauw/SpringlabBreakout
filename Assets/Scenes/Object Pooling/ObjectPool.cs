@@ -2,6 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Object Pool that keeps track of instantiated objects and manages a pool of them.
+/// </summary>
+
 public class ObjectPool : MonoBehaviour
 {
     private Dictionary<string, Queue<GameObject>> objectPool = new Dictionary<string, Queue<GameObject>>();

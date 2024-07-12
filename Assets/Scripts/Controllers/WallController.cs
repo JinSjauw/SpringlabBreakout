@@ -1,8 +1,7 @@
-using System;
 using UnityEngine;
 
 [RequireComponent(typeof(SpringComponent))]
-public class Wall : MonoBehaviour
+public class WallController : MonoBehaviour
 {
     private SpringComponent wallSpringComponent;
     private Vector3 startScale;

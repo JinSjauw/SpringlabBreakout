@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 6499888831394119901}
   - component: {fileID: 69945336417321264}
   - component: {fileID: -5069615120352198402}
+  - component: {fileID: 6549518792891855702}
   m_Layer: 6
   m_Name: Brick
   m_TagString: Brick
@@ -182,3 +183,19 @@ MonoBehaviour:
   explosiveFXPrefab: {fileID: 1933578714016439100, guid: 3bdc2d0c170b3414c8cb51a2e47c85f8, type: 3}
   superExplosiveFXPrefab: {fileID: 8610009387300910948, guid: 44c54435595eb964e9a2bcfc73af08db, type: 3}
   breakFXPrefab: {fileID: 6626855214805937907, guid: b7312c0dd5b23354e91a2e58bdd7bc1d, type: 3}
+--- !u!114 &6549518792891855702
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3696712646733397758}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19969fb2a7bac3f4bbbe5134b76fa05d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  angularFrequencyX: 10
+  dampingRatioX: 0.75
+  angularFrequencyY: 10
+  dampingRatioY: 0.75

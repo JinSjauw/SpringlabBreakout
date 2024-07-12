@@ -22,9 +22,15 @@ public class Spring2DComponent : MonoBehaviour
     private SpringMotionParams springMotionParamsX;
     private SpringMotionParams springMotionParamsY;
 
+    private bool isStoppedX;
+    private bool isStoppedY;
+    
     public float SpringValueX => springValueX;
     public float SpringValueY => springValueY;
-        
+
+    public bool IsStoppedX => isStoppedX;
+    public bool IsStoppedY => isStoppedY;
+    
     private void Awake()
     {
         springMotionParamsX = new SpringMotionParams();
@@ -38,11 +44,17 @@ public class Spring2DComponent : MonoBehaviour
 
     private void UpdateSpring()
     {
-        SpringUtils.CalcDampedSpringMotionParams(springMotionParamsX, Time.deltaTime, angularFrequencyX, dampingRatioX);
-        SpringUtils.UpdateDampedSpringMotion(ref springValueX, ref velocityX, equilibriumPositionX, springMotionParamsX);
-        
-        SpringUtils.CalcDampedSpringMotionParams(springMotionParamsY, Time.deltaTime, angularFrequencyY, dampingRatioY);
-        SpringUtils.UpdateDampedSpringMotion(ref springValueY, ref velocityY, equilibriumPositionY, springMotionParamsY);
+        if (!isStoppedX)
+        {
+            SpringUtils.CalcDampedSpringMotionParams(springMotionParamsX, Time.deltaTime, angularFrequencyX, dampingRatioX);
+            SpringUtils.UpdateDampedSpringMotion(ref springValueX, ref velocityX, equilibriumPositionX, springMotionParamsX);
+        }
+
+        if (!isStoppedY)
+        {
+            SpringUtils.CalcDampedSpringMotionParams(springMotionParamsY, Time.deltaTime, angularFrequencyY, dampingRatioY);
+            SpringUtils.UpdateDampedSpringMotion(ref springValueY, ref velocityY, equilibriumPositionY, springMotionParamsY);
+        }
     }
 
     public void SetEquilibriumPosition(float targetX, float targetY)
@@ -55,5 +67,11 @@ public class Spring2DComponent : MonoBehaviour
     {
         springValueX += valueX;
         springValueY += valueY;
+    }
+
+    public void Stop(bool stopX, bool stopY)
+    {
+        isStoppedX = stopX;
+        isStoppedY = stopY;
     }
 }
