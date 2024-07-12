@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using Ami.BroAudio;
 using Random = UnityEngine.Random;
 
 /// <summary>
@@ -9,6 +10,10 @@ public class Ball : MonoBehaviour
 {
 	[SerializeField] private GameEventChannel gameEventChannel;
 
+	[SerializeField] private SoundID ballHitSFX;
+	[SerializeField] private SoundID paddleHitSFX;
+	[SerializeField] private SoundID ballLostSFX;
+	
 	[SerializeField] private GameObject impactFXPrefab;
 	[SerializeField] private GameObject paddleImpactFXPrefab;
 	
@@ -63,8 +68,8 @@ public class Ball : MonoBehaviour
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
 		Vector3 collisionPoint = collision.GetContact(0).point;
-		
-		PlayFX(impactFXPrefab, collisionPoint);
+		PlaySFX(ballHitSFX);
+		PlayVFX(impactFXPrefab, collisionPoint);
 		ballSpring.Nudge(1.25f);
 		
 		if (collision.gameObject.CompareTag("Wall"))
@@ -76,7 +81,8 @@ public class Ball : MonoBehaviour
 		//Make this a bounce function. This way I could make hit stop.
 		if (collision.gameObject.CompareTag("Player"))
 		{
-			PlayFX(paddleImpactFXPrefab, collisionPoint);
+			PlaySFX(paddleHitSFX);
+			PlayVFX(paddleImpactFXPrefab, collisionPoint);
 			Bounce(collision);
 			
 			return;
@@ -90,7 +96,12 @@ public class Ball : MonoBehaviour
 		}
 	}
 
-	private void PlayFX(GameObject prefabFX, Vector3 position)
+	private void PlaySFX(SoundID soundID)
+	{
+		BroAudio.Play(soundID);
+	}
+	
+	private void PlayVFX(GameObject prefabFX, Vector3 position)
 	{
 		GameObject impactFX = objectPool.GetObject(prefabFX);
 		impactFX.transform.position = position;

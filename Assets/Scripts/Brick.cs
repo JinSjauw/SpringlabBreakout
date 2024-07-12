@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Ami.BroAudio;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -17,6 +18,8 @@ public class Brick : MonoBehaviour, IBrick
     [SerializeField] private Color fadedColor;
     [SerializeField] private float fadeToForeGroundTime;
 
+    [SerializeField] private SoundID explosionSFX;
+    
     [SerializeField] private GameObject explosiveFXPrefab;
     [SerializeField] private GameObject superExplosiveFXPrefab;
     [SerializeField] private GameObject breakFXPrefab;
@@ -86,12 +89,13 @@ public class Brick : MonoBehaviour, IBrick
                 brickToDestroy.DestroyBrick();
             }
         }
-        
-        PlayFX();
+
+        BroAudio.Play(explosionSFX);
+        PlayVFX();
         gameObject.SetActive(false);
     }
-
-    private void PlayFX()
+    
+    private void PlayVFX()
     {
         GameObject destructionFX = objectPool.GetObject(destructionFXPrefab);
         destructionFX.transform.position = transform.position;
